@@ -10,12 +10,25 @@ const TEXT: string = 'Bottleneck';
 /** Hard cap on the number of characters the entry may contain. */
 const MAX: number = 30;
 
-function main(): void {
-  const length: number = TEXT.length;
+/**
+ * Validate the entry text against the contest's 1..MAX character window.
+ * Returns an error message, or null when the text is acceptable.
+ */
+function checkLength(text: string): string | null {
+  const got: number = text.length;
+  if (got < 1) {
+    return `text is empty: got ${got} characters, the limit is 1..${MAX} (max ${MAX})`;
+  }
+  if (got > MAX) {
+    return `text is too long: got ${got} characters, the limit is 1..${MAX} (max ${MAX})`;
+  }
+  return null;
+}
 
-  // Refuse to produce an entry that breaks the contest's 1..MAX character window.
-  if (length < 1 || length > MAX) {
-    console.error(`entry rejected: length ${length} outside 1..${MAX}`);
+function main(): void {
+  const error: string | null = checkLength(TEXT);
+  if (error !== null) {
+    console.error(`entry rejected: ${error}`);
     process.exit(1);
   }
 
@@ -23,9 +36,9 @@ function main(): void {
   mkdirSync(outDir, { recursive: true });
 
   const outFile: string = join(outDir, 'entry.txt');
-  writeFileSync(outFile, TEXT + '\n', 'utf8');
+  writeFileSync(outFile, TEXT + '\n', { encoding: 'utf8' });
 
-  console.log(`wrote ${outFile} (${length} chars)`);
+  console.log(`wrote ${outFile} (${TEXT.length} chars)`);
 }
 
 main();
